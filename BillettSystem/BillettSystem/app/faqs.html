@@ -1,0 +1,16 @@
+﻿<h2 class="text-left">{{heading}}</h2>
+<div class="form-group">
+    <div class="btn-group btn-group-justified col-lg-11">
+        <div class="btn-group" *ngFor="let kategori of kategoriListe">
+            <button type="button" (click) ="hentAlleFaQFraKategori(kategori)"class="btn btn-info">{{kategori}}</button>
+        </div>
+    </div>
+</div>
+<div>
+    <div class="list-group">
+        <div *ngFor="let item of selectedfaqs">
+            <a class="list-group-item question" href="#question{{item.Id}}" data-toggle="collapse">{{item.Question}}</a>
+            <div id="question{{item.Id}}" class="collapse">{{item.Svar}}</div>
+        </div>
+    </div>
+</div>

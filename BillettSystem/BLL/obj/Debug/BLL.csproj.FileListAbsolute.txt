@@ -1,0 +1,14 @@
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\BLL\bin\Debug\BLL.dll
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\BLL\bin\Debug\BLL.pdb
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\BLL\bin\Debug\DAL.dll
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\BLL\bin\Debug\Model.dll
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\BLL\bin\Debug\log4net.dll
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\BLL\bin\Debug\EntityFramework.dll
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\BLL\bin\Debug\DAL.pdb
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\BLL\bin\Debug\Model.pdb
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\BLL\bin\Debug\log4net.xml
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\BLL\bin\Debug\EntityFramework.xml
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\BLL\obj\Debug\BLL.csprojResolveAssemblyReference.cache
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\BLL\obj\Debug\BLL.csproj.CoreCompileInputs.cache
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\BLL\obj\Debug\BLL.dll
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\BLL\obj\Debug\BLL.pdb

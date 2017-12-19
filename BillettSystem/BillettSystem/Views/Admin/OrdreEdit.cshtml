@@ -1,0 +1,431 @@
+﻿@model BillettSysModel.OrdreDetaljer
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>OrdreEdit</title>
+
+    <script type="text/javascript">
+
+        $(function () {
+            $("#ordrervalg").click(function () {
+                window.location = "/Admin/OrdrerAdmin";
+            });
+            $("#flyrutevalg").click(function () {
+                window.location = "/Admin/FlyRuteAdmin";
+            });
+
+            $.ajax({
+                url: '/Bruker/GetBrukerNavn',
+                type: 'GET',
+                dataType: 'json',
+                success: function (result) {
+                    if (result !== null)
+                        $("#loggedInBruker").text(result);
+                    else
+                        window.location = "/Bruker/LoggInn";
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+
+            $("#LoggUt").click(function () {
+                $.ajax({
+                    url: '/Bruker/LoggUt',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result === true)
+                            window.location = "/Bruker/LoggInn";
+
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+            });
+        });
+
+        function updateFly(flyrute, utreise) {
+            var type = "";
+            if (utreise == 1) type = "utreise";
+            else type = "retur";
+
+            $("#" + type + "FraDag").val(flyrute.AvreiseDag);
+            $("#" + type + "TilDag").val(flyrute.AnkomstDag);
+            $("#" + type + "FraTid").val(flyrute.AvreiseTid);
+            $("#" + type + "tilTid").val(flyrute.AnkomstTid);
+            $("#" + type + "FlySelskap").val(flyrute.FlySelskap);
+            $("#" + type + "FlyruteId").val(flyrute.Id);
+
+            $('#velgFly').modal('hide');
+        }
+
+        function openModal(utreise, fra, til, passasjerer) {
+            var a = 1;
+            $.ajax({
+                url: '/Admin/FinnTilgjengeligeFly',
+                type: 'GET',
+                data: { fra: fra, til: til, passasjerer: passasjerer },
+                dataType: 'json',
+                success: function (result) {
+                    var output = "";
+
+                    for (var i in result) {
+                        var flyrute = result[i];
+
+                        output += 
+                            "<tr>" +
+                                "<td>" + flyrute.Id + "</td>" +
+                                "<td>" + flyrute.Fra + "</td>" +
+                                "<td>" + flyrute.Til + "</td>" +
+                                "<td>" + flyrute.AvreiseDag + " " + flyrute.AvreiseTid + "</td>" +
+                                "<td>" + flyrute.AnkomstDag + " " + flyrute.AnkomstTid + "</td>" +
+                                "<td>" + flyrute.BillettprisVoksen + "</td>" +
+                                "<td>" + flyrute.BillettprisBarn + "</td>" +
+                                "<td>" + flyrute.AntallLedigePlasser + "</td>" +
+                                "<td>" + flyrute.FlySelskap + "</td>" +
+                                "<td>" +
+                        "<a class='btn btn-info btn-sm' data-toggle='modal' onclick='updateFly(" + JSON.stringify(flyrute) + "," + utreise+")' title='Vis detaljer'><span class='glyphicon glyphicon-ok'></span> </a>"+
+                                "</td>"+
+                            "</tr>"
+                    }
+
+                    $('#flyruteTabell tbody').append(output);
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+
+            $('#velgFly').modal();
+        }
+    </script>
+</head>
+<body>
+    <div class="container container-addon">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">BillettSysAdmin</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li id="flyrutevalg"><a href="#">Flyruter</a></li>
+                    <li id="ordrervalg"><a href="#">Ordrer</a></li>
+                    
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><span class="glyphicon glyphicon-user"></span> Logget inn som: <label id="loggedInBruker"></label></li>
+                    <li><a href="#" id="LoggUt"><span class="glyphicon glyphicon-log-out"></span>Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+                <h3>Rediger ordre</h3>
+                <hr />
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                @Html.HiddenFor(model => model.Id)
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Id, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Id, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Pris, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Pris, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Pris, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.BestillingsDato, " Dato Bestilling ", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.BestillingsDato, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Status, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Status, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <h3>Utreise</h3>
+                <hr />
+
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.Utreise.Fra, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.Utreise.Fra, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.Utreise.Til, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.Utreise.Til, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.Utreise.FraDato, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.Utreise.FraDato, new { htmlAttributes = new { @class = "form-control", @id = "utreiseFraDag" } })
+                            @Html.ValidationMessageFor(model => model.Utreise.FraDato, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.Utreise.TilDato, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.Utreise.TilDato, new { htmlAttributes = new { @class = "form-control", @id = "utreiseTilDag" } })
+                            @Html.ValidationMessageFor(model => model.Utreise.TilDato, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-1">
+                        <div class="btn btn-primary" onclick="openModal(1, '@Model.Utreise.Fra', '@Model.Utreise.Til', '@Model.Passasjerer.Count')">Endre fly dato</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.Utreise.FraTid, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.Utreise.FraTid, "Fra tid", new { htmlAttributes = new { @class = "form-control", @id = "utreiseFraTid" } })
+                            @Html.ValidationMessageFor(model => model.Utreise.FraTid, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.Utreise.TilTid, "Til tid", htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.Utreise.TilTid, new { htmlAttributes = new { @class = "form-control", @id = "utreiseTilTid" } })
+                            @Html.ValidationMessageFor(model => model.Utreise.TilTid, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.Utreise.FlySelskap, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.Utreise.FlySelskap, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly", @id = "utreiseFlySelskap" } })
+                            @Html.ValidationMessageFor(model => model.Utreise.FlySelskap, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5" style="display: none;">
+                        @Html.LabelFor(model => model.Utreise.FlyruteId, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.Utreise.FlyruteId, new { htmlAttributes = new { @id = "utreiseFlyruteId", @class = "form-control", @readonly = "readonly" } })
+                            @Html.ValidationMessageFor(model => model.Utreise.FlyruteId, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.Retur != null)
+                {
+                    <h3>Retur</h3>
+                        <hr />
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                @Html.LabelFor(model => model.Retur.Fra, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.Retur.Fra, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-5">
+                                @Html.LabelFor(model => model.Retur.Til, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.Retur.Til, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                @Html.LabelFor(model => model.Retur.FraDato, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.Retur.FraDato, new { htmlAttributes = new { @class = "form-control", @id = "returFraDag" } })
+                                    @Html.ValidationMessageFor(model => model.Retur.FraDato, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group col-md-5">
+                                @Html.LabelFor(model => model.Retur.TilDato, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.Retur.TilDato, new { htmlAttributes = new { @class = "form-control", @id = "returTilDag" } })
+                                    @Html.ValidationMessageFor(model => model.Retur.TilDato, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group col-md-1">
+                                <div class="btn btn-primary" onclick="openModal(0, '@Model.Retur.Fra', '@Model.Retur.Til', '@Model.Passasjerer.Count')">Endre fly dato</div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                @Html.LabelFor(model => model.Retur.FraTid, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.Retur.FraTid, new { htmlAttributes = new { @class = "form-control", @id = "returFraTid" } })
+                                    @Html.ValidationMessageFor(model => model.Retur.FraTid, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group col-md-5">
+                                @Html.LabelFor(model => model.Retur.TilTid, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.Retur.TilTid, new { htmlAttributes = new { @class = "form-control", @id = "returTilTid" } })
+                                    @Html.ValidationMessageFor(model => model.Retur.TilTid, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                @Html.LabelFor(model => model.Retur.FlySelskap, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.Retur.FlySelskap, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly", @id = "returFlySelskap" } })
+                                    @Html.ValidationMessageFor(model => model.Retur.FlySelskap, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group col-md-5" style="display: none;">
+                                @Html.LabelFor(model => model.Retur.FlyruteId, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.Retur.FlyruteId, new { htmlAttributes = new { @id = "returFlyruteId", @class = "form-control", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(model => model.Retur.FlyruteId, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+
+                }
+
+                <h3>Passasjerer</h3>
+                <hr />
+                        @for (int i = 0; i < Model.Passasjerer.Count; i++)
+                            {
+                            <div class="form-group">
+                                @Html.LabelFor(model => Model.Passasjerer[i].Fornavn, htmlAttributes: new { @class = "control-label col-md-2"})
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => Model.Passasjerer[i].Fornavn, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => Model.Passasjerer[i].Fornavn, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => Model.Passasjerer[i].Etternavn, htmlAttributes: new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => Model.Passasjerer[i].Etternavn, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => Model.Passasjerer[i].Etternavn, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => Model.Passasjerer[i].ErVoksen, htmlAttributes: new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => Model.Passasjerer[i].ErVoksen, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => Model.Passasjerer[i].ErVoksen, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => Model.Passasjerer[i].Bagasje, htmlAttributes: new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => Model.Passasjerer[i].Bagasje, new { htmlAttributes = new { @class = "form-control", min = 0, max = 2 } })
+                                    @Html.ValidationMessageFor(model => Model.Passasjerer[i].Bagasje, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="display: none;">
+                                @Html.LabelFor(model => Model.Passasjerer[i].Id, htmlAttributes: new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => Model.Passasjerer[i].Id, new { htmlAttributes = new { @class = "form-control", min = 0, max = 2 } })
+                                    @Html.ValidationMessageFor(model => Model.Passasjerer[i].Id, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <hr />
+                        }
+
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10">
+                                <a href="@Url.Action("OrdrerAdmin", "Admin")" class="btn btn-default">Avbryt</a>
+                                <input type="submit" value="Lagre" class="btn btn-primary" />
+                            </div>
+                        </div>
+                    </div>
+                    }
+
+                    <div id="velgFly" class="modal fade" role="dialog">
+                        <div class="modal-dialog modal-lg modal-dialog-center">
+
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Tilgjengelige Fly</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <table id="flyruteTabell" class="table table-bordered table-hover" cellspacing="5" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Flyrute Id.</th>
+                                                <th>Fra</th>
+                                                <th>Til</th>
+                                                <th>Avreise</th>
+                                                <th>Ankosmt</th>
+                                                <th>Pris voksen</th>
+                                                <th>Pris Barn</th>
+                                                <th>Ledige plasser</th>
+                                                <th>Selskap</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr>
+                                                @*<td id="flyRuteId"></td>
+                                                <td id="fra"></td>
+                                                <td id="til"></td>
+                                                <td id="avreise"></td>
+                                                <td id="ankomst"></td>
+                                                <td id="prisV"></td>
+                                                <td id="prisB"></td>
+                                                <td id="plasser"></td>
+                                                <td id="selskap"></td>
+                                                <td>
+                                                    <a class="btn btn-info btn-sm" data-toggle="modal" onclick="" title="Vis detaljer"><span class="glyphicon glyphicon-ok"></span> </a>
+                                                </td>*@
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    @*<div>
+                        <a href="@Url.Action("FlyRuteAdmin", "Admin")" class="btn btn-default">Avbryt</a>
+                    </div>*@
+
+                </div>
+</body>
+</html>

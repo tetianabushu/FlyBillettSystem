@@ -1,0 +1,306 @@
+﻿@model BillettSystem.Models.SearchParameters
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <script type="text/javascript">
+        $(function () {
+
+            var date = new Date();
+
+            $('#fraDate').datetimepicker({
+                minDate: date, format: 'DD/MM/YYYY'
+            });
+            $('#tilDate').datetimepicker({
+                format: 'DD/MM/YYYY', useCurrent: false //Important! See issue #1075
+            });
+
+            $('#tilDate > .form-control').prop('disabled', true);
+            
+
+            $("#fraDate").on("dp.change", function (e) {
+                $('#tilDate').data("DateTimePicker").minDate(e.date);
+            });
+            $("#tilDate").on("dp.change", function (e) {
+                $('#fraDate').data("DateTimePicker").maxDate(e.date);
+            });
+
+            $('#envei').change(function (){
+                $('#tilDate > .form-control').prop('disabled', true);
+                $("#tilDate").data("DateTimePicker").clear();
+            });
+
+            $('#turRetur').change(function () {
+                $('#tilDate > .form-control').prop('disabled', false);
+            });
+                      
+            $.ajax({
+                url: '/Home/hentAlleFraFlyplasser',
+                type: 'GET',
+                dataType: 'json',
+                success: function (fraListe) {
+                    VisDropDown1(fraListe);
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+
+            function VisDropDown1(fraListe) {
+                var utStreng = "<option >Velg by</option>";
+                for (var i in fraListe) {
+                    utStreng += "<option value='" + fraListe[i] + "'>" + fraListe[i] + "</option>";
+                }
+                $("#drop1").empty().append(utStreng);
+            }
+
+            // opprett en hendelse på dropdown-listen fraFlyplass når siden lastes
+
+            $("#drop1").change(function () {
+                var byValgtFraDrop1 = $(this).val(); // velger current valgt value av dropdown
+                
+                $.ajax({
+                    url: '/Home/hentTilFlyplasser',
+                    type: 'GET',
+                    data: { valgtFra: byValgtFraDrop1 },
+                    dataType: 'json',
+                    success: function (tilListe) {
+                        VisDropDown2(tilListe);
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+            });
+
+            function VisDropDown2(tilListe) {
+                var utStreng = "";
+                for (var i in tilListe) {
+                    utStreng += "<option value='" + tilListe[i] + "'>" + tilListe[i] + "</option>";
+                }
+                $("#drop2").empty().append(utStreng);
+            }
+            $("#searchBtn").click(function () {
+                
+                if (!$('#sokForm').valid()) {
+                    return;
+                }
+
+                //var velgFra = $("#reiseFraSearch").val();
+                // var velgTil = $("#reiseTilSearch").val();
+                var envei = true;
+                var turRetur = $('input[name=envei]:checked').val();
+                if (turRetur !== undefined && turRetur === '2') {
+                    envei = false;
+                }
+                var fraBy = $("#reiseFraSearch").val();
+                var tilBy = $("#reiseTilSearch").val();
+
+                var antallVoksen = $("#antallvoksen").val();
+                var antallBarn = $("#antallbarn").val();
+
+                var fraDato = $("#fraDate").find("input").val();
+                var returDato = $("#tilDate").find("input").val();
+                $.ajax({
+                    url: '/Home/getSearchResultat',
+                    type: 'GET',
+                    data: {
+                        fraFlyplass: fraBy, tilFlyplass: tilBy, envei: envei, fraDato: fraDato, returDato: returDato,
+                        antallVoksen: antallVoksen, antallBarn: antallBarn
+                    },
+                    dataType: 'json',
+                    success: function (reiser) {
+                        var output = "";
+                        
+                        output += "<div class='container container-addon'>";
+                                    
+                        if (reiser.length == 0) {
+                            $("#searchresult").empty().append(output + "Søk ga ingen resultater.</div></div>");
+                            return;
+                        }
+
+                        for (var r in reiser) {
+                            output += "<div class='form-horizontal' >";
+                            for (var i in reiser[r].AlleFlyRuter) {
+                                var flyRute = reiser[r].AlleFlyRuter[i];
+                                
+                                output += "<div class='form-group'>" +
+                                        "<div class='col-md-2 col-xs-12 font-bold'>" + flyRute.FlySelskap + "</div>" +
+                                        "<div class='col-md-2 text-right col-xs-5 font-bold font-tid'>" + flyRute.UtreiseTid + "</div>" +
+                                        "<div class='col-md-1 col-xs-1'></div>" +
+                                        "<div class='col-md-7 col-xs-6 font-bold font-tid'>" + flyRute.InnreiseTid + "</div>" +
+
+                                        "<div class='col-md-4 text-right col-xs-5'>" + flyRute.UtreiseDag + "</div>" +
+                                        "<div class='col-md-1 col-xs-1'></div>" +
+                                        "<div class='col-md-7 col-xs-6'>" + flyRute.InnreiseDag + "</div>" +
+
+                                        "<div class='col-md-4 text-right col-xs-5'>" + flyRute.Fra + "</div>" +
+                                        "<div class='col-md-1 col-xs-1'></div>" +
+                                        "<div class='col-md-7 col-xs-6'>" + flyRute.Til + "</div>" +
+                                    "</div>";
+                                if (i < reiser[r].AlleFlyRuter.length-1)
+                                    output += "<hr/>";
+                            }
+                            output +=
+                                    "<div class='row'>" +
+                                        "<div class='col-md-8 text-right font-tid font-bold'>Kr. " + reiser[r].TotaltPris + "</div>" +
+                                        "<div class='col-md-2'><button id='choosebtn" + r + "' type='button' class='btn btn-primary btn-block'>Velg</button></div>" +
+                                    "</div>" +
+                            "</div>";
+                            
+                        }
+                        output += "</div> ";
+
+                        $("#searchresult").empty().append(output);
+
+                        for (var r in reiser) {
+                            $("#choosebtn" + r).click(function () {
+                                $.ajax({
+                                    url: '/Home/SaveValgtReise',
+                                    type: 'POST',
+                                    data: {Reise : reiser[r]},
+                                    success: function () {
+                                        window.location = "/Home/ValgtFlyDetaljer";
+                                    },
+                                    error: function (x, y, z) {
+                                        alert(x + '\n' + y + '\n' + z);
+                                    }
+                                }); 
+                                
+                            });
+                        }
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+            });
+
+            //function VisStrekninger(strekninger) {
+            //    var utStreng = "<table class='table'><tr><th>Fra</th><th>Til</th><th>Dato</th><th>Tid</th><th>Pris</th></tr>";
+            //    for (var i in strekninger) {
+            //        utStreng += "<tr><td>" + strekninger[i].fraFlyplass + "</td><td>" + strekninger[i].tilFlyplass +
+            //            "</td><td>" + strekninger[i].dato + "</td><td>" + strekninger[i].tid + "</td><td>" + strekninger[i].pris + "<tr/>";
+            //    }
+            //    utStreng +="</table>"
+            //    $("#strekninger").empty().append(utStreng);
+            //}
+        });
+
+        function helpPage() { window.location = '/Help.html'; }
+    </script>
+</head>
+<body> 
+    <div class="container container-addon">
+            <div class="row">
+                <div class="col-md-2 col-lg-offset-8 text-right"><a class="btn btn-default btn-sm btn-block" onclick="helpPage()">Hjelp</a></div>
+                <div class="col-md-2"><a class="btn btn-default btn-sm btn-block" href="@Url.Action("LoggInn", "Bruker")">Admin Logg inn</a></div>
+            </div>
+            @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "sokForm" }))
+            {
+                @Html.ValidationSummary(true, "", new { @class = "error-class" })
+                <div class="form-horizontal" id="SearchCriteria">
+                    <div class="form-group ">
+                        <div class="col-md-2">
+                            <label class="radio-inline"><input type="radio" id="envei" name="envei" checked="checked" value="1">En vei</label>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="radio-inline"><input type="radio" id="turRetur" name="envei" value="2">Tur retur</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            @Html.LabelFor(model => model.Fra, htmlAttributes: new { @class = "control-label" })
+                            @Html.EditorFor(model => model.Fra, new { htmlAttributes = new { id = "reiseFraSearch", @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Fra, "", new { @class = "error-class" })
+                        </div>
+                        <div class="col col-md-3" id="dropDown2">
+                            @Html.LabelFor(model => model.Til, htmlAttributes: new { @class = "control-label" })
+                            @Html.EditorFor(model => model.Til, new { htmlAttributes = new { id = "reiseTilSearch", @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Til, "", new { @class = "error-class" })
+                            @*<select id="drop2" class="btn btn-primary dropdown-toggle"></select>*@
+                        </div>
+                        <div class='col-md-2 col-xs-4'>
+                            @Html.LabelFor(model => model.DatoFra, htmlAttributes: new { @class = "control-label" })
+                            <div class='input-group date' id='fraDate'>
+                                @Html.EditorFor(model => model.DatoFra, new { htmlAttributes = new { @class="form-control", type = "text" } })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                            @Html.ValidationMessageFor(model => model.DatoFra, "", new { @class = "error-class" })
+                        </div>
+                        <div class='col-md-2 col-xs-4'>
+                            @Html.LabelFor(model => model.DatoTil, htmlAttributes: new { @class = "control-label" })
+                            <div class='input-group date' id='tilDate'>
+                                @Html.EditorFor(model => model.DatoTil, new { htmlAttributes = new { @class = "form-control", type = "text" } })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                            @Html.ValidationMessageFor(model => model.DatoTil, "", new { @class = "error-class" })
+                        </div>
+                        <div class="col-md-2"></div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col col-md-1"><label class="font12" for="antallvoksen">Voksne (18+)</label></div>
+                        <div class="col col-md-1">
+                            <select id="antallvoksen" class="btn btn-default dropdown-toggle">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                        </div>
+                        <div class="col col-md-1"><label for="antallbarn">Barn (0-17)</label></div>
+                        <div class="col col-md-1">
+                            <select id="antallbarn" class="btn btn-default dropdown-toggle">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                        </div>
+
+                        <div class="col col-md-4"></div>
+                        <div class="col col-md-2">
+                            <button id="searchBtn" type="button" value="Søk" class="btn btn-primary btn-block">Søk</button>
+                        </div>
+                    </div>
+
+                </div>
+            }
+
+
+            <div id="searchresult">
+                @*<div class="container container-addon" >
+                    <div class="form-horizontal">
+                        <div class=" form-group">
+                            <div class="col-md-1 col-xs-12 font-bold">Norwegian</div>
+                            <div class="col-md-3 text-right col-xs-5 font-bold font-tid">15:30</div>
+                            <div class="col-md-1 col-xs-1"></div>
+                            <div class="col-md-7 col-xs-6 font-bold font-tid">15:30</div>
+
+                            <div class="col-md-4 text-right col-xs-5">27/10/2017</div>
+                            <div class="col-md-1 col-xs-1"></div>
+                            <div class="col-md-7 col-xs-6">27/10/2017</div>
+
+
+                            <div class="col-md-4 text-right col-xs-5">Oslo</div>
+                            <div class="col-md-1 col-xs-1"></div>
+                            <div class="col-md-7 col-xs-6">London</div>
+                        </div>
+                        <hr />
+                        <div class=" row">
+                            <div class=" col-md-8 text-right font-tid font-bold">pris</div>
+                            <div class=" col-md-2"><button id="choosebtn" typ e="button" class="btn btn-primary btn-block">Velg</button></div>
+                        </div>
+                    </div>
+                </div>*@
+            </div>
+        </div>
+</body>
+</html>

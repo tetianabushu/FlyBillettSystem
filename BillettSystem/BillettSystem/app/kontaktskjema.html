@@ -1,0 +1,50 @@
+﻿
+    <form [formGroup]="skjema" (ngSubmit)="vedSubmit()">
+        
+        <div class="form-group no-margin">
+            <label>Kategori</label>
+            <select class="form-control" formControlName="kategori">
+                <option value="0" selected disabled>Velg kategori</option>
+                <option *ngFor="let kategori of kategorier" [value]="kategori">{{kategori}}</option>
+            </select>
+
+            <p class="text-danger" [hidden]="skjema.controls.kategori.valid || (skjema.controls.kategori.pristine && !submitted)">
+                Fornavn er obligatorisk.
+            </p>
+        </div>
+        <div class="form-group no-margin">
+            <label>Navn</label>
+            <input class="form-control" type="text" maxlength="50" formControlName="navn" />
+            <p class="text-danger" [hidden]="skjema.controls.navn.valid || (skjema.controls.navn.pristine && !submitted)">
+                Oppgi navn
+            </p>
+        </div>
+        <div class="form-group no-margin">
+            <label>E-post addresse</label>
+            <input class="form-control" maxlength="150" formControlName="epost" />
+            <p class="text-danger" [hidden]="skjema.controls.epost.valid || (skjema.controls.epost.pristine && !submitted)">
+                E-post addresse er obligatorisk
+            </p>
+        </div>
+        <div class="form-group no-margin">
+            <label>Spørsmål tittel</label>
+            <textarea rows="2" maxlength="150" class="form-control textarea-help" formControlName="questionTitle" ></textarea>
+            <p class="text-danger" [hidden]="skjema.controls.questionTitle.valid || (skjema.controls.questionTitle.pristine && !submitted)">
+                Oppgi spørsmål tittel
+            </p>
+        </div>
+        <div class="form-group no-margin">
+            <label>Spørsmål tekst</label>
+            <textarea rows="8" maxlength="2000" class="form-control textarea-help" formControlName="questionText"></textarea>
+            <p class="text-danger" [hidden]="skjema.controls.questionText.valid || (skjema.controls.questionText.pristine && !submitted)">
+                Vennligst oppgi spørsmål tekst
+            </p>
+        </div>
+        <div class="form-group no-margin">
+            <button type="submit" [disabled]="!skjema.valid" class="btn btn-primary">Send</button>
+        </div>
+        <div class="alert alert-success alert-dismissable fade in" *ngIf="questionSendt">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <strong>Spørsmål er sendt. Vi kontakter deg så fort som mulig.</strong>
+        </div>
+    </form>

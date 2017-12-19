@@ -1,0 +1,339 @@
+﻿@model BillettSysModel.OrdreListe
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Inlogging</title>
+    <script type="text/javascript">
+
+        $(function () {
+            $("#ordrervalg").click(function () {
+                window.location = "/Admin/OrdrerAdmin";
+            });
+            $("#flyrutevalg").click(function () {
+                window.location = "/Admin/FlyRuteAdmin";
+            });
+
+            $.ajax({
+                url: '/Bruker/GetBrukerNavn',
+                type: 'GET',
+                dataType: 'json',
+                success: function (result) {
+                    if (result !== null)
+                        $("#loggedInBruker").text(result);
+                    else
+                        window.location = "/Bruker/LoggInn";
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+
+            $("#LoggUt").click(function () {
+                $.ajax({
+                    url: '/Bruker/LoggUt',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result === true)
+                            window.location = "/Bruker/LoggInn";
+                            
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+            });
+
+            $("#flyrutevalg").click(function () {
+                window.location = "/Admin/FlyRuteAdmin";
+            });
+            $('#ordretabell').DataTable();
+        });
+
+        function editOrdre(ordreId) {
+            alert(ordreId);
+        }
+
+        function openModal(ordreId) {
+            // hent detaljer med AJax
+            $.ajax({
+                url: '/Admin/GetOrdreDetaljer',
+                type: 'GET',
+                data: { ordreId: ordreId },
+                dataType: 'json',
+                success: function (result) {
+                    $("#OrdreId").text(result.Id);
+
+                    if (result.KanRedigere) {
+                        $("#ordreEditKnapp").show();
+                        $("#ordreEditKnapp").click(function () {
+                            window.location = "/Admin/OrdreEdit?ordreId=" + result.Id;
+                        });
+                    }
+                    else {
+                        $("#ordreEditKnapp").hide();
+                    }
+
+                    $("#OrdrePris").text(result.Pris);
+                    $("#OrdreDato").text(result.BestillingsDato);
+                    $("#OrdreStatus").text(result.Status);
+
+                    $("#utreiseFly").text(result.Utreise.FlySelskap);
+                    $("#utreiseFraTid").text(result.Utreise.FraTid);
+                    $("#utreiseTilTid").text(result.Utreise.TilTid);
+                    $("#utreiseFraDag").text(result.Utreise.FraDato);
+                    $("#utreiseTilDag").text(result.Utreise.TilDato);
+                    $("#utreiseFra").text(result.Utreise.Fra);
+                    $("#utreiseTil").text(result.Utreise.Til);
+
+                    if (result.Retur) {
+                        $("#returHeading").show();
+                        $("#returDiv").show();
+                        $("#returFly").text(result.Retur.FlySelskap);
+                        $("#returFraTid").text(result.Retur.FraTid);
+                        $("#returTilTid").text(result.Retur.TilTid);
+                        $("#returFraDag").text(result.Retur.FraDato);
+                        $("#returTilDag").text(result.Retur.TilDato);
+                        $("#returFra").text(result.Retur.Fra);
+                        $("#returTil").text(result.Retur.Til);
+                    }
+                    else {
+                        $("#returHeading").hide();
+                        $("#returDiv").hide();
+                    }
+                    
+                    var output = "";                        
+
+                    for (var i in result.Passasjerer) {
+                        var passasjer = result.Passasjerer[i];
+                        var count = parseInt(i) + 1;                        
+                        
+                        output +=
+                            "<div class='col-md-12 col-xs-12 font-bold'>Passasjer " + count + "</div>" +
+                            "<div class='row '>" +
+                                "<div class='col-md-4 col-xs-4 text-right font-bold'>Navn:</div>" +
+                                "<div class='col-md-8 col-xs-8'>" + passasjer.Fornavn + " " + passasjer.Etternavn + "</div>" +
+                            "</div>" +
+                            "<div class='row'> " +
+                                "<div class='col-md-4 col-xs-4 text-right font-bold'>" + passasjer.ErVoksen + "</div> " +
+                                "<div class='col-md-8 col-xs-8'></div> " +
+                            "</div>" +
+                            "<div class='row' > " +
+                                "<div class='col-md-4 col-xs-4 text-right font-bold'>Bagasje enheter:</div> " +
+                                "<div class='col-md-8 col-xs-8'>" + passasjer.Bagasje + "</div> " +                                
+                            "</div>";
+                    }
+
+                    $("#passasjerer").empty().append(output);
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+
+            $('#myModal').modal();
+        }
+
+        function cancelOrdre(ordreId) {
+            $.ajax({
+                url: '/Admin/KansellerOrdre',
+                type: 'GET',
+                data: { ordreId: ordreId },
+                success: function (result) {
+                    if (result) {
+                        alert('Ordre er kansellert!');
+                        window.location.reload();
+                    }
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+        };
+        
+    </script>
+</head>
+<body>
+    <div class="container container-addon">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">BillettSysAdmin</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li id="flyrutevalg"><a href="#">Flyruter</a></li>
+                    <li id="ordrervalg"  class="active"><a href="#">Ordrer</a></li>
+                    
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><span class="glyphicon glyphicon-user"></span> Logget inn som: <label id="loggedInBruker"></label></li>
+                    <li><a href="#" id="LoggUt"><span class="glyphicon glyphicon-log-out"></span>Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+        @using (Html.BeginForm())
+        {
+            <div class="form-horizontal">
+                <table id="ordretabell" class="table table-bordered table-hover" cellspacing="5" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Ordre Id.</th>                            
+                            <th>Bestillingsdato/tid</th>
+                            <th>Status</th>
+                            <th>Type</th>
+                            <th>Fra</th>
+                            <th>Til</th>                            
+                            <th>Total pris</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.Ordrer)
+                {
+                            <tr>
+                                <td>@item.OrdreId</td> 
+                                <td>@item.DatoBetaling</td> 
+                                <td>@item.Status</td> 
+                                <td>@item.Type</td>
+                                <td>@item.Fra</td>
+                                <td>@item.Til</td>
+                                <td>@item.pris kr</td>
+                                <td> 
+                                    <a class="btn btn-info btn-sm" data-toggle="modal" onclick="openModal(@item.OrdreId)" title="Vis detaljer"><span class="glyphicon glyphicon-info-sign"></span> </a>
+                                    @if (item.KanEndre)
+                                    {
+                                        <a href="@Url.Action("OrdreEdit", "Admin", new { ordreId = @item.OrdreId })" class="btn btn-primary btn-sm" data-toggle="tooltip" title="Rediger"><span class="glyphicon glyphicon-pencil"></span> </a>
+                                    }
+                                    else
+                                    {
+                                        <a class="btn btn-primary btn-sm disabled" ><span class="glyphicon glyphicon-pencil"></span> </a>
+                                    }
+
+                                    @if (item.KanEndre && item.Status != "Kansellert")
+                                    {
+                                        <a href="#" onclick="cancelOrdre(@item.OrdreId)" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Kanseller"><span class="glyphicon glyphicon-trash"></span> </a>
+                                    }
+                                    else
+                                    {
+                                        <a class="btn btn-danger btn-sm disabled" data-toggle="tooltip" title="Kanseller"><span class="glyphicon glyphicon-trash"></span> </a>
+                                    }
+                                </td>
+                            </tr>
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        }
+
+        <div id="kansellerOrdreModal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-sm modal-dialog-center">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Warning!</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Ordre er Kansellert.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg modal-dialog-center">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Ordre Detaljer</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid border-bottom">
+                            <div class='col-md-12 text-right'>
+                                <a id="ordreEditKnapp" class='btn btn-primary btn-sm' data-toggle='tooltip' title='Rediger'>Rediger Ordre</a>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2 col-xs-6 text-right">
+                                    <label>Ordre Id:</label>
+                                </div>
+                                <div class="col-md-10 col-xs-6" id="OrdreId">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2 col-xs-6 text-right">
+                                    <label>Ordre Pris (Kr.):</label>
+                                </div>
+                                <div class="col-md-10 col-xs-6"  id="OrdrePris">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2 col-xs-6 text-right">
+                                    <label>Ordre Dato:</label>
+                                </div>
+                                <div class="col-md-10 col-xs-6" id="OrdreDato">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2 col-xs-6 text-right">
+                                    <label>Status:</label>
+                                </div>
+                                <div class="col-md-10 col-xs-6" id="OrdreStatus">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="container-fluid border-bottom">
+                            <div class="row"><h3>Utreise</h3></div>
+                            
+                            <div class='row'>
+                                <div class="col-md-2 col-xs-12 font-bold" id="utreiseFly"></div>
+                                <div class="col-md-2 text-right col-xs-5 font-bold font-tid" id="utreiseFraTid"></div>
+                                <div class='col-md-1'></div>
+                                <div class="col-md-7 col-xs-6 font-bold font-tid" id="utreiseTilTid"></div>
+
+                                <div class="col-md-4 text-right col-xs-5" id="utreiseFraDag"></div>
+                                <div class="col-md-1 col-xs-1"></div>
+                                <div class="col-md-7 col-xs-6" id="utreiseTilDag"></div>
+
+                                <div class="col-md-4 text-right col-xs-5" id="utreiseFra"></div>
+                                <div class="col-md-1 col-xs-1"></div>
+                                <div class="col-md-7 col-xs-6" id="utreiseTil"></div>
+                            </div>
+                            
+                            <div class="row" id="returHeading"><h3>Retur</h3></div>
+                            <div class="row" id="returDiv">                                
+                                <div class="col-md-2 col-xs-12 font-bold" id="returFly"></div>
+                                <div class="col-md-2 text-right col-xs-5 font-bold font-tid" id="returFraTid"></div>
+                                <div class='col-md-1'></div>
+                                <div class="col-md-7 col-xs-6 font-bold font-tid" id="returTilTid"></div>
+
+                                <div class="col-md-4 text-right col-xs-5" id="returFraDag"></div>
+                                <div class="col-md-1 col-xs-1"></div>
+                                <div class="col-md-7 col-xs-6" id="returTilDag"></div>
+
+                                <div class="col-md-4 text-right col-xs-5" id="returFra"></div>
+                                <div class="col-md-1 col-xs-1"></div>
+                                <div class="col-md-7 col-xs-6" id="returTil"></div>
+                            </div>                            
+                        </div>
+                        <div class="container-fluid" id="passasjerer"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

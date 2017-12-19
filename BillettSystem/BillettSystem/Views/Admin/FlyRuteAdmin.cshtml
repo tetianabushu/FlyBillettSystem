@@ -1,0 +1,175 @@
+﻿@model BillettSysModel.FlyruteListe
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Inlogging</title>
+    <script type="text/javascript">
+
+        $(function () {
+            $.ajax({
+                url: '/Bruker/GetBrukerNavn',
+                type: 'GET',
+                dataType: 'json',
+                success: function (result) {
+                    if (result !== null)
+                        $("#loggedInBruker").text(result);
+                    else
+                        window.location = "/Bruker/LoggInn";
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+
+            $("#LoggUt").click(function () {
+                $.ajax({
+                    url: '/Bruker/LoggUt',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result === true)
+                            window.location = "/Bruker/LoggInn";
+
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+            });
+        
+        $(function () {
+            $("#ordrervalg").click(function () {
+                window.location = "/Admin/OrdrerAdmin";
+            });
+            $("#flyrutevalg").click(function () {
+                window.location = "/Admin/FlyRuteAdmin";
+            });
+
+            $("#deleteFlyruteAlert").click(function () {
+                $('#deleteFlyruteAlert').hide();
+            });
+
+            $('#flyrutetabell').DataTable();
+            }); 
+
+        });
+
+        function deleteFlyrute(flyRuteId) {
+            $.ajax({
+                url: '/Admin/DeleteFlyRute',
+                type: 'GET',
+                data: { flyRuteId: flyRuteId },
+                success: function (result) {
+                    if (result.toLowerCase() === "true") {
+                       window.location.reload();
+                    }
+                    else {                        
+                        $('#flyRuteDeleteError').modal();
+                    }
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+        };
+
+        function helpPage() { window.location = '/AdminHelp.html'; }
+        </script>
+</head >
+ <body>
+     <div class="container container-addon">
+        <nav class="navbar navbar-default">
+             <div class="container-fluid">
+                 <div class="navbar-header">
+                     <a class="navbar-brand" href="#">BillettSysAdmin</a>
+                 </div>
+                 <ul class="nav navbar-nav">
+                     <li id="flyrutevalg"class="active"><a href="#">Flyruter</a></li>
+                     <li id="ordrervalg"><a href="#">Ordrer</a></li>
+                     
+                 </ul>
+                 <ul class="nav navbar-nav navbar-right">
+                     <li><span class="glyphicon glyphicon-user"></span> Logget inn som: <label id="loggedInBruker"></label></li>
+                     <li><a href="#" id="LoggUt"><span class="glyphicon glyphicon-log-out"></span>Logout</a></li>
+                 </ul>
+             </div>
+         </nav>
+    @using (Html.BeginForm())
+    {        
+        <div class="form-horizontal">
+            <div class="row">
+                <div class="col-md-10 col-sm-8"></div>
+                <div class="col-md-2 col-sm-4">
+                    <a href="@Url.Action("FlyRuteEdit", "Admin", new { flyruteId = 0 })" class="btn btn-block btn-primary btn-default">Ny flyrute</a>
+                </div>                
+            </div>
+            <table id="flyrutetabell" class="table table-bordered table-hover" cellspacing="5" width="100%">
+                <thead >
+                    <tr>
+                        <th>Id</th>
+                        <th>Fra</th>
+                        <th>Til</th>
+                        <th>Avreise dag/tid</th>
+                        <th>Ankomst dag/tid</th>
+                        <th>Pris Voksen/Barn</th>
+                        <th>FlySelskap</th>
+                        <th>Ledige Plasser</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                
+                <tbody>
+
+                @foreach (var item in Model.Flyruter)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Fra</td>
+                        <td>@item.Til</td>
+                        <td>@item.AvreiseDag - @item.AvreiseTid</td>
+                        <td>@item.AnkomstDag - @item.AnkomstTid</td>
+                        <td>@item.BillettprisVoksen/@item.BillettprisBarn</td>
+                        <td>@item.FlySelskap</td>
+                        <td>@item.AntallLedigePlasser</td>
+                        <td>
+                            @if (item.KanEndre)
+                            { <a style="" href="@Url.Action("FlyRuteEdit", "Admin", new { flyruteId = item.Id })" class="btn btn-info btn-sm"><span class="glyphicon glyphicon-pencil"></span> </a>}
+                            else
+                            {
+                                <a style="" class="btn btn-info btn-sm disabled"><span class="glyphicon glyphicon-pencil"></span> </a>
+                            }
+
+                            <a href="#" onclick="deleteFlyrute(@item.Id)" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash"></span> </a>
+                        </td>
+                    </tr>
+                    
+                }                    
+                </tbody>
+            </table>
+        </div>
+
+    }
+
+         <div id="flyRuteDeleteError" class="modal fade" role="dialog">
+             <div class="modal-dialog modal-sm modal-dialog-center">
+                 <div class="modal-content">
+                     <div class="modal-header">
+                         <button type="button" class="close" data-dismiss="modal">&times;</button>
+                         <h4 class="modal-title">Warning!</h4>
+                     </div>
+                     <div class="modal-body">
+                         <p>Flyrute kan ikke slettes, siden den inneholder Ordre bestillinger.</p>
+                     </div>
+                 </div>
+
+             </div>
+         </div>
+         
+     </div>
+
+</body>
+</html >
+

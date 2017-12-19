@@ -1,0 +1,218 @@
+﻿@model BillettSysModel.Flyrute
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Inlogging</title>
+    <script type="text/javascript">
+        $(function () {
+
+            $("#ordrervalg").click(function () {
+                window.location = "/Admin/OrdrerAdmin";
+            });
+            $("#flyrutevalg").click(function () {
+                window.location = "/Admin/FlyRuteAdmin";
+            });
+
+            $.ajax({
+                url: '/Bruker/GetBrukerNavn',
+                type: 'GET',
+                dataType: 'json',
+                success: function (result) {
+                    if (result !== null)
+                        $("#loggedInBruker").text(result);
+                    else
+                        window.location = "/Bruker/LoggInn";
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+
+            $("#LoggUt").click(function () {
+                $.ajax({
+                    url: '/Bruker/LoggUt',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result === true)
+                            window.location = "/Bruker/LoggInn";
+
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+            });
+
+            var date = new Date();
+            $('#avreiseDag').datetimepicker({
+                minDate: date, format: 'DD/MM/YYYY'
+            });
+            $('#ankomstDag').datetimepicker({
+                format: 'DD/MM/YYYY', useCurrent: false //Important! See issue #1075
+            });
+            $('#avreisetid').datetimepicker({
+                format: 'LT', format: 'HH:mm'
+            });
+            $('#ankomsttid').datetimepicker({
+                format: 'LT', format: 'HH:mm'
+            });
+            
+        });
+        
+    </script>
+</head>
+<body>
+    <div class="container container-addon">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">BillettSysAdmin</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li id="flyrutevalg"><a href="#">Flyruter</a></li>
+                    <li id="ordrervalg"><a href="#">Ordrer</a></li>
+                   
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><span class="glyphicon glyphicon-user"></span> Logget inn som: <label id="loggedInBruker"></label></li>
+                    <li><a href="#" id="LoggUt"><span class="glyphicon glyphicon-log-out"></span>Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+                <h4>Rediger flyrute</h4>
+                <hr />
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Id, "Fly Id", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(model => model.Id, new { @class = "form-control", @readonly = "readonly" })
+                        @Html.ValidationMessageFor(model => model.Id, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.FlySelskap, "Flyselskap", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.FlySelskap, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.FlySelskap, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Fra, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Fra, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Fra, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Til, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Til, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Til, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.AvreiseDag, "Avreise dag", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        <div class='input-group date col-md-4 col-sm-5 col-xs-6' id='avreiseDag'>
+                            @Html.EditorFor(model => model.AvreiseDag, new { htmlAttributes = new { @class = "form-control", type = "text" } })
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>                            
+                        </div>
+                        @Html.ValidationMessageFor(model => model.AvreiseDag, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.AvreiseTid, "Avreise tid", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        <div class='input-group date col-md-4 col-sm-5 col-xs-6' id='avreisetid'>
+                            @Html.EditorFor(model => model.AvreiseTid, new { htmlAttributes = new { @class = "form-control", type = "text" } })
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-time"></span>
+                            </span>                            
+                        </div>
+                        @Html.ValidationMessageFor(model => model.AvreiseTid, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.AnkomstDag, "Ankomst dag", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        <div class='input-group date col-md-4 col-sm-5 col-xs-6' id='ankomstDag'>
+                            @Html.EditorFor(model => model.AnkomstDag, new { htmlAttributes = new { @class = "form-control", type = "text" } })
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>                            
+                        </div>
+                        @Html.ValidationMessageFor(model => model.AnkomstDag, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.AnkomstTid, "Ankomst tid", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        <div class='input-group date col-md-4 col-sm-5 col-xs-6' id='ankomsttid'>
+                            @Html.EditorFor(model => model.AnkomstTid, new { htmlAttributes = new { @class = "form-control", type = "text" } })
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-time"></span>
+                            </span>
+                        </div>
+                        @Html.ValidationMessageFor(model => model.AnkomstTid, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.BillettprisVoksen, "Pris Voksen", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.BillettprisVoksen, new { htmlAttributes = new { @class = "form-control", min = 0 } })
+                        @Html.ValidationMessageFor(model => model.BillettprisVoksen, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.BillettprisBarn, "Pris barn", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.BillettprisBarn, new { htmlAttributes = new { @class = "form-control", min = 0} })
+                        @Html.ValidationMessageFor(model => model.BillettprisBarn, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.AntallLedigePlasser,"Antall ledige plasser",htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.AntallLedigePlasser, new { htmlAttributes = new { @class = "form-control" , min = 0, max = 999} })
+                        @Html.ValidationMessageFor(model => model.AntallLedigePlasser, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Lagre" class="btn btn-primary" />
+                        <a href="@Url.Action("FlyRuteAdmin", "Admin")" class="btn btn-default">Avbryt</a>
+                    </div>
+                </div>
+            </div>
+
+        }
+
+
+        </div>
+</body>
+</html>

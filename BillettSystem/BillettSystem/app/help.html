@@ -1,0 +1,21 @@
+﻿<div class="container container-addon">    
+    <div class='form-horizontal'>       
+        <div class="row">
+            <div class="col-lg-2 col-lg-offset-8">
+                <a (click)="visAdminSide()" *ngIf="!adminSide" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-left"></span>Admin side</a>                
+            </div>
+            <div class="col-lg-2 text-right">                
+                <a  (click)="visSkjemaView()" *ngIf="visFaq" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-envelope"></span> Kontakt oss</a>
+                <a (click)="visfaqs()" *ngIf="visSkjema" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-left"></span>FAQs</a>        
+                <a (click)="visfaqs()" *ngIf="adminSide" class="btn btn-primary btn-block">Tilbake</a>
+            </div>        
+        </div>
+        
+        <faqs *ngIf="visFaq"></faqs>
+        <kontaktskjema *ngIf="visSkjema"></kontaktskjema>
+        
+        <div class="row table-responsive">
+            <adminside *ngIf="adminSide"></adminside>
+        </div>
+    </div>
+</div>

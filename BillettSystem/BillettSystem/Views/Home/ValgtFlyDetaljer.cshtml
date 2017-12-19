@@ -1,0 +1,324 @@
+﻿@model BillettSystem.Models.Reise
+@{ 
+    ViewBag.Title = "ValgtFlyDetaljer";
+}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width" />
+
+        <script type="text/javascript">
+            $(function () {
+                var model = @Html.Raw(Json.Encode(Model));
+                var passasjerModel;
+
+                $.ajax({
+                    url: '/Home/getPassasjerDetaljer',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (valgtepassasjerer) {
+                        var count = 0;
+                        var antallBagasjer = 0;
+                        if (valgtepassasjerer != null)
+                        {
+                            for (var i = 1; i <= model.AntallVoksen; i++) {
+                                var passasjer = valgtepassasjerer[count];
+                                $("#usrNavnV" + i).val(passasjer.Name);
+                                $("#usrEtternavnV" + i).val(passasjer.EtterNavn);
+                                $("#usrAdresseV" + i).val(passasjer.Adresse);
+                                $("#usrEpostV" + i).val(passasjer.Epost);
+                                $("#bagasjeV" + i).val(passasjer.AntallBagasje)
+                                count++;
+                            }
+
+                            for (var i = 1; i <= model.AntallBarn; i++) {
+                                var passasjer = valgtepassasjerer[count];
+                                $("#usrNavnB" + i).val(passasjer.Name);
+                                $("#usrEtternavnB" + i).val(passasjer.EtterNavn);
+                                $("#usrAdresseB" + i).val(passasjer.Adresse);
+                                $("#usrEpostB" + i).val(passasjer.Epost);
+                                $("#bagasjeB" + i).val(passasjer.AntallBagasje)
+                                count++;
+                            }   
+
+                            oppdaterBagasjePris();
+                        }
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+
+                //var rules = {};
+                //var messages = {};
+                //for (var i = 1; i <= model.AntallVoksen; i++) {
+                //    rules["usrNavnV"+i] = {
+                //        required: true
+                //    };
+                //    messages["usrNavnV" + i] = {
+                //        required: "Oppgi fornavn"
+                //    };
+                //    messages["usrEtternavnV" + i] = {
+                //        required: "Oppgi fornavn"
+                //    };
+                //    messages["usrAdresseV" + i] = {
+                //        required: "Oppgi fornavn"
+                //    };
+                //    messages["usrEpostV" + i] = {
+                //        required: "Oppgi fornavn"
+                //    };
+                //}
+
+                var validator = $("#passasjerDetaljerForm").validate({
+                    errorClass: "error-class",
+                    errorElement: 'span'
+                    //rules: rules,
+                    //messages: messages,                    
+                });
+                
+                for (var i = 1; i <= model.AntallVoksen; i++) {
+                    $("#bagasjeV" + i).change(function () {
+                        oppdaterBagasjePris();
+                    });
+                }
+                for (var i = 1; i <= model.AntallBarn; i++) {
+                    $("#bagasjeB" + i).change(function () {
+                        oppdaterBagasjePris();
+                    });
+                }
+
+                function oppdaterBagasjePris() {
+                    var antallBaggasje = 0;
+                    for (var i = 1; i <= model.AntallVoksen; i++) {
+                        var value = parseInt($("#bagasjeV" + i).val());
+                        if (value == "1")
+                            antallBaggasje = antallBaggasje + 1;
+                        else if (value == "2")
+                            antallBaggasje = antallBaggasje + 2;
+                    }
+                    for (var i = 1; i <= model.AntallBarn; i++) {
+                        var value = parseInt($("#bagasjeB" + i).val());
+                        if (value == "1")
+                            antallBaggasje = antallBaggasje + 1;
+                        else if (value == "2")
+                            antallBaggasje = antallBaggasje + 2;
+                    }
+
+                    var newPris = model.TotaltPris + (200 * antallBaggasje);
+                    $("#TotalPris").empty()
+                        .append("<strong>Pris: Kr. " + newPris + "</strong>");
+                }
+
+                $("#avbrytBtn").click(function () {
+                    $.ajax({
+                        url: '/Home/NullstilleSession',
+                        type: 'POST',
+                        data: {},
+                        success: function () {
+                            window.location = "/Home/Index";
+                        },
+                        error: function (x, y, z) {
+                            alert(x + '\n' + y + '\n' + z);
+                        }
+                    });
+                });
+
+                $("#betalingBtn").click(function () {
+                    //lagre alle verdier i session først
+                    
+                    if (!$('#passasjerDetaljerForm').valid()) {
+                        return;
+                    }
+
+                    var passasjerer = [];
+
+                    for (var i = 1; i <= model.AntallVoksen; i++) {
+                        var voksen = {
+                            Name: $("#usrNavnV" + i).val(), EtterNavn: $("#usrEtternavnV" + i).val(),
+                            Adresse: $("#usrAdresseV" + i).val(), Epost: $("#usrEpostV" + i).val(),
+                            Voksen: true, AntallBagasje: $("#bagasjeV" + i).val()
+                        }
+                        passasjerer.push(voksen);
+                    };
+
+                    for (var i = 1; i <= model.AntallBarn; i++) {
+                        var barn = {
+                            Name: $("#usrNavnB" + i).val(), EtterNavn: $("#usrEtternavnB" + i).val(),
+                            Adresse: $("#usrAdresseB" + i).val(), AntallBagasje: $("#bagasjeB" + i).val()
+                        }
+                        passasjerer.push(barn);
+                    };
+
+                    $.ajax({
+                        url: '/Home/SaveOrdreDetaljer',
+                        type: 'POST',
+                        data: { passasjerer },
+                        success: function () {
+                            window.location = "/Home/Betaling";
+                        },
+                        error: function (x, y, z) {
+                            alert(x + '\n' + y + '\n' + z);
+                        }
+                    });
+                });
+
+
+            });
+
+        </script>
+    </head>
+    <body>
+                   
+            <div class="container container-addon" id=" valgtefly">
+                
+                    <div class='form-horizontal'>
+                        <div class="font-22">Din bestilling:</div>
+                        <hr />
+                        @foreach (var item in Model.AlleFlyRuter) {
+                            <div class='form-group'>
+                                <div class="col-md-2 col-xs-12 font-bold">@item.FlySelskap</div>
+                                <div class="col-md-2 text-right col-xs-5 font-bold font-tid">@item.UtreiseTid</div>
+                                <div class='col-md-1'></div>
+                                <div class="col-md-7 col-xs-6 font-bold font-tid">@item.InnreiseTid</div>
+
+                                <div class="col-md-4 text-right col-xs-5">@item.UtreiseDag</div>
+                                <div class="col-md-1 col-xs-1"></div>
+                                <div class="col-md-7 col-xs-6">@item.InnreiseDag</div>
+
+                                <div class="col-md-4 text-right col-xs-5">@item.Fra</div>
+                                <div class="col-md-1 col-xs-1"></div>
+                                <div class="col-md-7 col-xs-6">@item.Til</div>
+                            </div>
+                    }
+
+                        <div class=" row">
+                            <div class=" col-md-12 text-right font-tid font-bold" id="TotalPris">Kr. @Model.TotaltPris</div>
+                        </div>
+                    </div>
+            </div>
+            
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "passasjerDetaljerForm" }))
+            {
+    <div class="container container-addon">
+        <div class="form-horizontal">
+            <div class="font-22">Kunde detaljer:</div>
+            <hr />
+
+            @for (int i = 1; i <= Model.AntallVoksen; i++)
+            {
+                <div class="col-md-12 font-bold font-18">Voksen @i</div>
+                    <div class=" form-group">
+                        <div class="col-md-2 text-right">
+                            <label for="usr">Fornavn:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input type="text" class="form-control" pattern="([A-zÀ-ž-\s]){2,}" name="usrNavnV@(i)" id="usrNavnV@(i)" required title="Oppgi gyldig fornavn">
+                        </div>
+                    </div>
+                    <div class=" form-group">
+                        <div class="col-md-2 text-right">
+                            <label for="usr">Etternavn:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input type="text" class="form-control" pattern="([A-zÀ-ž-\s]){2,}" name="usrEtternavnV@(i)" id="usrEtternavnV@(i)" required title="Oppgi gyldig etternavn">
+                        </div>
+                    </div>
+                    <div class=" form-group">
+                        <div class="col-md-2 text-right">
+                            <label for="usr">Adresse</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input type="text" class="form-control" id="usrAdresseV@(i)" pattern="([A-z0-9À-ž,.-\s]){2,}" name="usrAdresseV@(i)" required title="Oppgi gyldig adresse">
+                        </div>
+                    </div>
+                    <div class=" form-group">
+                        <div class="col-md-2 text-right">
+                            <label for="usr">Epost:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input type="email" class="form-control" id="usrEpostV@(i)" name="usrEpostV@(i)" required title="Oppgi gyldig epost">
+                        </div>
+                    </div>
+                    <div class=" form-group">
+                        <div>
+                            <label class="control-label col-md-2 text-right" for="bagasje"><h>Bagasje:</h></label>
+                        </div>
+
+                        <div class="dropdown col-md-10">
+                            <select id="bagasjeV@(i)" class="btn btn-default dropdown-toggle">
+                                <option value="0">kun håndbagasje 1x10kg</option>
+                                <option value="1">1 koffert 1x20 kg (Kr. 200)</option>
+                                <option value="2">2 koffert 2x20 kg (Kr. 400)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <hr />
+            }
+            @for (int i = 1; i <= Model.AntallBarn; i++)
+            {
+                <div class="col-md-12 font-bold font-18">Barn @i</div>
+                    <div class=" form-group">
+                        <div class="col-md-2 text-right">
+                            <label for="usr">Fornavn:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input type="text" class="form-control" id="usrNavnB@(i)" name="usrNavnB@(i)" required title="Oppgi Fornavn">
+                        </div>
+                    </div>
+                    <div class=" form-group">
+                        <div class="col-md-2 text-right">
+                            <label for="usr">Etternavn:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input type="text" class="form-control" id="usrEtternavnB@(i)" name="usrEtternavnB@(i)" required title="Oppgi Etternavn">
+                        </div>
+                    </div>
+                    <div class=" form-group">
+                        <div class="col-md-2 text-right">
+                            <label for="usr">Adresse</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input type="text" class="form-control" id="usrAdresseB@(i)" name="usrAdresseB@(i)" required title="Oppgi Adresse">
+                        </div>
+                    </div>
+                    <div class=" form-group">
+                        <div>
+                            <label class="control-label col-md-2 text-right" for="bagasje"><h>Bagasje:</h></label>
+                        </div>
+
+                        <div class="dropdown col-md-10">
+                            <select id="bagasjeB@(i)" class="btn btn-default dropdown-toggle">
+                                <option value="0">kun håndbagasje 1x10kg</option>
+                                <option value="1">1 koffert 1x20 kg (Kr. 200)</option>
+                                <option value="2">2 koffert 2x20 kg (Kr. 400)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <hr />
+            }
+        </div>
+
+    </div>
+
+    <div class="container container-addon">
+        <div class="form-horizontal">
+            <div class="form-group">
+                    <div class="col col-md-9"></div>
+                    <div class="col col-md-1 col-xs-12">
+                        <button id="avbrytBtn" type="button" class="btn btn-primary">Avbryt</button>
+                    </div>
+                    <div class="col col-md-1 col-xs-12">
+                        <button id="betalingBtn" type="button" class="btn btn-primary">Til betaling</button>
+                    </div>
+                </div>
+        </div>
+    </div>
+    
+}
+        
+    </body>
+</html>
+
+ 
+

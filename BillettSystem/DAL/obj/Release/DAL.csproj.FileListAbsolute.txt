@@ -1,0 +1,14 @@
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\DAL\bin\Release\DAL.dll
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\DAL\bin\Release\DAL.pdb
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\DAL\bin\Release\EntityFramework.dll
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\DAL\bin\Release\EntityFramework.SqlServer.dll
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\DAL\bin\Release\log4net.dll
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\DAL\bin\Release\Model.dll
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\DAL\bin\Release\Model.pdb
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\DAL\bin\Release\EntityFramework.xml
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\DAL\bin\Release\EntityFramework.SqlServer.xml
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\DAL\bin\Release\log4net.xml
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\DAL\obj\Release\DAL.csprojResolveAssemblyReference.cache
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\DAL\obj\Release\DAL.csproj.CoreCompileInputs.cache
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\DAL\obj\Release\DAL.dll
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\DAL\obj\Release\DAL.pdb

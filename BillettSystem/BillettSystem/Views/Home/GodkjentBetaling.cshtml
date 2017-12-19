@@ -1,0 +1,158 @@
+﻿@model BillettSystem.Models.Reise
+@{
+    ViewBag.Title = "GodkjentBetaling";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <script> 
+        $(function () {
+
+            /*
+            $.ajax({
+                url: '/Home/getReiseDetaljer',
+                type: 'GET',
+                dataType: 'json',
+                success: function (reise) {
+                    var output = "";
+                    var re = /-?\d+/;
+                    output += "<div class='form-horizontal panel panel-default' >";
+                    for (var i in reise.AlleFlyRuter) {
+                        var flyRute = reise.AlleFlyRuter[i];
+                        var m = re.exec(flyRute.UtreiseDato);
+                        var fraDate = new Date(parseInt(m[0]));
+
+                        var d = re.exec(flyRute.InnreiseDato);
+                        var tilDate = new Date(parseInt(d[0]));
+
+                        output += "<div class='form-group'>" +
+                            "<div class='col-md-4 text-right'><strong>" + flyRute.Fra + "</strong></div>" +
+                            "<div class=' col-md-2'> </div>" +
+                            "<div class=' col-md-6'><strong>" + flyRute.Til + "</strong></div>" +
+                            "<div class='col-md-4 text-right'>" + fraDate + "</div>" +
+                            "<div class='col-md-2 text-center'>-----</div>" +
+                            "<div class='col-md-3'>" + tilDate + "</div>" +
+                            "</div>";
+                    }
+                    output +=
+                        "<div class='row'>" +
+                        "<div class='col-md-12 text-right'><strong>Pris: Kr. " + reise.TotaltPris + "</strong></div>" +
+                        "</div>" +
+                        "</div>";
+                    $("#ruterbestilling").empty().append(output);
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });*/
+
+            $.ajax({
+                url: '/Home/getPassasjerDetaljer',
+                type: 'GET',
+                dataType: 'json',
+                success: function (valgtpassasjerer) {
+                    var output = "";
+                    for (var i in valgtpassasjerer) {
+                        var passasjer = valgtpassasjerer[i];
+                        var count = parseInt(i) + 1;
+                        output +=
+                            "<div class='col-md-12 col-xs-12 font-bold'>Passasjer " + count + "</div>" +
+                            "<div class='row '>" +
+                            "<div class='col-md-3 col-xs-4 text-right font-bold'>Navn:</div>" +
+                            "<div class='col-md-9 col-xs-8'>" + passasjer.Name + " " + passasjer.EtterNavn + "</div>" +
+                            "</div>";
+                        if (passasjer.Epost != null) {
+                            output +=
+                                "<div class='row'> " +
+                                "<div class='col-md-3 col-xs-4 text-right font-bold'>Epost:</div> " +
+                                "<div class='col-md-9 col-xs-8' >" + passasjer.Epost + "</div> " +
+                                "</div>";
+                        }
+                        output +=
+                            "<div class='row'> " +
+                            "<div class='col-md-3 col-xs-4 text-right font-bold'>Adresse:</div> " +
+                            "<div class='col-md-9 col-xs-8' >" + passasjer.Adresse + "</div> " +
+                            "</div>" +
+                            "<div class='row' > " +
+                            "<div class='col-md-3 col-xs-4 text-right font-bold'>Bagasje enheter:</div> " +
+                            "<div class='col-md-9 col-xs-8'>" + passasjer.AntallBagasje + "</div> " +
+                            "</div>" +
+                            "<hr />";
+                    }
+
+                    $("#passasjerdetaljer").empty().append(output);
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+
+            $.ajax({
+                url: '/Home/NullstilleSession',
+                type: 'POST',
+                data: {},
+                success: function () {
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+
+            $("#avbrytBtn").click(function () {
+                window.location = "/Home/Index";
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="col-md-12 body-container">
+        <div class="container container-addon" id=" flypassasjerdetaljer">
+            <div class="form-horizontal">
+                <div class="page-header text-center"><h3>Fly er bestilt! Takk for din bestilling!!</h3></div>
+                
+                <div class='form-horizontal'>
+                        <div class="font-22">Din bestilling:</div>
+                        <hr />
+                        @foreach (var item in Model.AlleFlyRuter)
+                        {
+                            <div class='form-group'>
+                                <div class="col-md-2 col-xs-12 font-bold">@item.FlySelskap</div>
+                                <div class="col-md-2 text-right col-xs-5 font-bold font-tid">@item.UtreiseTid</div>
+                                <div class='col-md-1'></div>
+                                <div class="col-md-7 col-xs-6 font-bold font-tid">@item.InnreiseTid</div>
+
+                                <div class="col-md-4 text-right col-xs-5">@item.UtreiseDag</div>
+                                <div class="col-md-1 col-xs-1"></div>
+                                <div class="col-md-7 col-xs-6">@item.InnreiseDag</div>
+
+                                <div class="col-md-4 text-right col-xs-5">@item.Fra</div>
+                                <div class="col-md-1 col-xs-1"></div>
+                                <div class="col-md-7 col-xs-6">@item.Til</div>
+                            </div>
+                        }
+
+                        <div class=" row">
+                            <div class=" col-md-12 text-right font-tid font-bold" id="TotalPris">Kr. @Model.TotaltPris</div>
+                        </div>
+
+                        <hr />
+                        <div class="form-group" id="passasjerdetaljer">
+
+                        <hr />
+                        </div>
+                        <div class="form-group">
+                            <div class="col col-md-12 text-right">
+                                <button id="avbrytBtn" type="button" class="btn btn-primary">Tilbake til søk</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

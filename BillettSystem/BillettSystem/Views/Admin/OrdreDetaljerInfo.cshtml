@@ -1,0 +1,31 @@
+﻿@model BillettSysModel.OrdreDetaljer
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "ordreDetaljerForm" }))
+{
+<div>
+    <h4>OrdreDetaljer</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Pris)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.BestillingsDato)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Utreise)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Retur)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", "Admin") |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+}

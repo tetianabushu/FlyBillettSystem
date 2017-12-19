@@ -1,0 +1,5 @@
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\Model\bin\Release\Model.dll
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\Model\bin\Release\Model.pdb
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\Model\obj\Release\Model.csproj.CoreCompileInputs.cache
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\Model\obj\Release\Model.dll
+C:\Users\bushu\Documents\HIOA fra C\5Sem\Webapplikasjoner\Mappe 1 s239947\BillettSystem\Model\obj\Release\Model.pdb
